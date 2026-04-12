@@ -2,12 +2,9 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Clone') {
-            steps {
-                git 'https://github.com/vinothinisenniappan/devops_project.git'
-            }
-        }
+        // We removed the "Clone" stage because Jenkins does it automatically 
+        // at the start (Declarative: Checkout SCM). 
+        // This prevents the "master branch not found" error.
 
         stage('Build Docker Image') {
             steps {
@@ -24,10 +21,10 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
+                // Using --validate=false to bypass the connection errors from earlier
                 bat 'kubectl apply -f deployment.yaml --validate=false'
                 bat 'kubectl apply -f service.yaml --validate=false'
             }
         }
-
     }
 }
