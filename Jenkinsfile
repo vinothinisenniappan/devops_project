@@ -19,11 +19,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+stage('Deploy to Kubernetes') {
             steps {
-                // Using --validate=false to bypass the connection errors from earlier
-                bat 'kubectl apply -f deployment.yaml --validate=false'
-                bat 'kubectl apply -f service.yaml --validate=false'
+                // We use the full path to your local kubeconfig so Jenkins knows how to login
+                bat 'set KUBECONFIG=%USERPROFILE%\\.kube\\config && kubectl apply -f deployment.yaml --validate=false'
+                bat 'set KUBECONFIG=%USERPROFILE%\\.kube\\config && kubectl apply -f service.yaml --validate=false'
             }
         }
     }
