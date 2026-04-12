@@ -15,11 +15,12 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-            steps {
-                bat 'docker push vinothinisenniappan/devops_project'
-            }
-        }
+stage('Push to Docker Hub') {
+    steps {
+        bat 'docker login -u vinothinisenniappan -p Vino@1801'
+        bat 'docker push vinothinisenniappan/devops_project'
+    }
+}
 
         stage('Deploy to Kubernetes') {
             steps {
