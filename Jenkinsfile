@@ -23,9 +23,14 @@ stage('Push to Docker Hub') {
 }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                bat 'kubectl apply -f deployment.yaml'
-            }
+    steps {
+        withCredentials([string(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_CONTENT')]) {
+            bat '''
+            echo %KUBECONFIG_CONTENT% > kubeconfig.yaml
+            set KUBECONFIG=kubeconfig.yaml
+            kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml
+            '''
         }
     }
 }
