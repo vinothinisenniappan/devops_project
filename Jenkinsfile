@@ -18,12 +18,11 @@ pipeline {
                 bat 'docker push vinothinisenniappan/devops_project'
             }
         }
-
 stage('Deploy to Kubernetes') {
             steps {
-                // We use the full path to your local kubeconfig so Jenkins knows how to login
-                bat 'set KUBECONFIG=%USERPROFILE%\\.kube\\config && kubectl apply -f deployment.yaml --validate=false'
-                bat 'set KUBECONFIG=%USERPROFILE%\\.kube\\config && kubectl apply -f service.yaml --validate=false'
+                // We hardcode the path to your personal user folder where Minikube stores the config
+                bat 'set KUBECONFIG=C:\\Users\\vinot\\.kube\\config && kubectl apply -f deployment.yaml --validate=false'
+                bat 'set KUBECONFIG=C:\\Users\\vinot\\.kube\\config && kubectl apply -f service.yaml --validate=false'
             }
         }
     }
