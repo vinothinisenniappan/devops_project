@@ -1,28 +1,33 @@
 pipeline {
     agent any
-
+    environment {
+        // This tells Jenkins exactly where your K8s 'keys' are
+        KUBECONFIG = 'C:\\Users\\vinot\\.kube\\config'
+    }
     stages {
-        // We removed the "Clone" stage because Jenkins does it automatically 
-        // at the start (Declarative: Checkout SCM). 
-        // This prevents the "master branch not found" error.
-
-        stage('Build Docker Image') {
+        stage('Step 1: Cleanup') {
             steps {
-                bat 'docker build -t vinothinisenniappan/devops_project .'
+                // Remove old containers so we don't run out of space
+                bat 'docker system prune -f'
             }
         }
-
-        stage('Push to Docker Hub') {
+        stage('Step 2: Build Image') {
+            steps {
+                bat 'docker build -t vinothinisenniappan/devops_project:latest .'
+            }
+        }
+        stage('Step 3: Push to Hub') {
             steps {
                 bat 'docker login -u vinothinisenniappan -p Vino@1801'
-                bat 'docker push vinothinisenniappan/devops_project'
+                bat 'docker push vinothinisenniappan/devops_project:latest'
             }
         }
-stage('Deploy to Kubernetes') {
+        stage('Step 4: Deploy to Kubernetes') {
             steps {
-                // We hardcode the path to your personal user folder where Minikube stores the config
-                bat 'set KUBECONFIG=C:\\Users\\vinot\\.kube\\config && kubectl apply -f deployment.yaml --validate=false'
-                bat 'set KUBECONFIG=C:\\Users\\vinot\\.kube\\config && kubectl apply -f service.yaml --validate=false'
+                bat 'kubectl apply -f deployment.yaml'
+                bat 'kubectl apply -f service.yaml'
+                // This ensures K8s pulls the NEW image immediately
+                bat 'kubectl rollout restart deployment devops-app'
             }
         }
     }
