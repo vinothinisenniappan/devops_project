@@ -1,32 +1,46 @@
 pipeline {
     agent any
+
     environment {
-        // This tells Jenkins exactly where your K8s 'keys' are
-        KUBECONFIG = 'C:\\Users\\vinot\\.kube\\config'
+        IMAGE = "vinothinisenniappan/devops_project:v2"
     }
+
     stages {
-        stage('Step 1: Cleanup') {
+
+        stage('Cleanup') {
             steps {
-                // Remove old containers so we don't run out of space
-                bat 'docker system prune -f'
+                bat 'docker container prune -f'
             }
         }
-        stage('Step 2: Build Image') {
+
+        stage('Build Image') {
             steps {
-                bat 'docker build -t vinothinisenniappan/devops_project:latest .'
+                bat 'docker build -t %IMAGE% .'
             }
         }
-        stage('Step 3: Push to Hub') {
+
+        stage('Docker Login') {
             steps {
-                bat 'docker login -u vinothinisenniappan -p Vino@1801'
-                bat 'docker push vinothinisenniappan/devops_project:latest'
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-creds',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    bat 'echo %PASS% | docker login -u %USER% --password-stdin'
+                }
             }
         }
-        stage('Step 4: Deploy to Kubernetes') {
+
+        stage('Push Image') {
+            steps {
+                bat 'docker push %IMAGE%'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
             steps {
                 bat 'kubectl apply -f deployment.yaml'
                 bat 'kubectl apply -f service.yaml'
-                // This ensures K8s pulls the NEW image immediately
                 bat 'kubectl rollout restart deployment devops-app'
             }
         }

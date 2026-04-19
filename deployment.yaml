@@ -18,6 +18,6 @@ spec:
     spec:
       containers:
       - name: devops-app
-        image: vinothinisenniappan/devops_project
+        image: vinothinisenniappan/devops_project:v1
         ports:
         - containerPort: 80
